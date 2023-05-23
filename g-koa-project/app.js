@@ -16,7 +16,11 @@ app.use(abnormal)
 
 //注册、登陆
 const login = require('./router/login/login.js')
+const setData =require('./router/personalData/setData.js')
+const paperData = require('./router/paperData/paperData.js')
 router.use('/api', login)
+router.use('/api',setData)
+router.use('/api',paperData)
 
 
 app.use(router.routes()).use(router.allowedMethods())

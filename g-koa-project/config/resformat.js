@@ -12,6 +12,7 @@ class result {
     answer() {
         this.ctx.body = {
             msg: this.msg,
+            code:this.code,
             data: this.data,
             extra: this.extra
         }

@@ -18,8 +18,8 @@ function userRegister(username, password, dblp_url, name) {
                 console.log('[INSERT ERROR] - ', err.message);
                 resolve(false);
             }
+            resolve(true)
         })
-        resolve(true)
     })
 
 }
@@ -29,7 +29,6 @@ function userLogin(username, password) {
         console.log(username, password)
         var sql = 'SELECT * FROM user WHERE username=?'
         connection.query(sql, [username], function (err, result) {
-            console.log(result)
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
                 resolve('db error')
@@ -38,6 +37,8 @@ function userLogin(username, password) {
                     resolve(false) //用户名输入错误
                 }
                 else if (password == result[0].password) {
+                    delete result[0]["username"]
+                    delete result[0]["password"]
                     resolve([true, result[0]])
                 }
                 else {
@@ -80,12 +81,13 @@ function resetPawd(id, password, newPassword) {
 //用户个人信息
 function setPerdata(id, age, phone, email, professor, zip_code, avatur_url) {
     return new Promise((resolve) => {
-        var insertSql = 'REPLACE INTO user(age,phone,email,professor,zip_code,avatur_url) VALUES(?,?,?,?,?,?) WHERE id=?'
-        var insertParams = [age, phone, email, professor, zip_code, avatur_url, id]
+        var insertSql = 'UPDATE user SET age=?,phone=?,email=?,professor=?,zip_code=?,avatur_url=? WHERE id=?'
+        var insertParams = [parseInt(age), phone, email, professor, zip_code, avatur_url, parseInt(id)]
         connection.query(insertSql, insertParams, function (err, result) {
             if (err) {
+                console.log(err)
                 console.log('[REPLACE PERSONAL DATA ERROR] - ', err.message);
-                resolve('db error')
+                resolve(false)
             } else {
                 resolve(true)
             }
@@ -96,8 +98,8 @@ function setPerdata(id, age, phone, email, professor, zip_code, avatur_url) {
 //填写用户教育信息
 function setEduexp(self_intro, research_field, academic_duties, award, eduExp, id) {
     return new Promise((resolve) => {
-        var insertSql = 'REPLACE INTO user(self_introduction,reserch_fields,academic_duties,award,education_experience) VALUES(?,?,?,?,?) WHERE id =?'
-        var insertParams = [self_intro, research_field, academic_duties, award, eduExp, id]
+        var insertSql = 'UPDATE user SET self_introduction=?,research_fields=?,academic_duties=?,award=?,education_experience=? WHERE id=?'
+        var insertParams = [self_intro, research_field, academic_duties, award, eduExp, parseInt(id)]
         connection.query(insertSql, insertParams, function (err, result) {
             if (err) {
                 console.log('[REPLACE EDUCATION EXPERIENCE ERROR] - ', err.message);
@@ -110,47 +112,60 @@ function setEduexp(self_intro, research_field, academic_duties, award, eduExp, i
 }
 
 //在登陆的同时查询并存入dblp记录的论文
-function storePaper(authors, title, author, pages, year, volumn, journal, ee, url) {
+function storePaper(authors=null, title, author, pages=null, year=null, journal=null, ee=null, url=null) {
     return new Promise((resolve) => {
-        var selectSql = 'SELECT author FROM PUBILC_DBLP where url=?'
-        var selectParams = [url]
+        let count = 0
+        var selectSql = 'SELECT author FROM pubilcDblp where title=?'
+        var selectParams = [title]
         connection.query(selectSql, selectParams, function (err, result) {
             if (err) {
                 console.log('[SELECT URL ERROR] - ', err.message);
                 resolve('db error')
             } else {
-                if (result[0] == undefined) {
-                    var insertSql = 'INSERT INTO PUBILC_DBLP(authors,title,author,pages,year,volumn,journal,ee,url) VALUES(?,?,?,?,?,?,?,?,?)'
-                    var insertParams = [authors, title, author, pages, year, volumn, journal, ee, url]
+                if (result[0] == undefined) { //说明没有插入该作者且没有插入该论文标题
+                    var insertSql = 'INSERT INTO pubilcDblp(authors,title,author,pages,year,journal,ee,url) VALUES(?,?,?,?,?,?,?,?)'
+                    var insertParams = [authors, title, author, pages, year, journal, ee, url]
+                    console.log(insertParams)
                     connection.query(insertSql, insertParams, function (err, result) {
                         if (err) {
-                            console.log('[INSERT PUBILC PAPER ERROR] -', err.message)
+                            console.log('[INSERT PUBILC PAPER ERROR1] -', err.message)
                         } else {
                             resolve(true)
                         }
                     })
-                } else if (author == result[0].author) {
-                    resolve(false)  //说明数据库中已有该用户该论文
                 } else {
-                    var insertSql = 'INSERT INTO PUBILC_DBLP(authors,title,author,pages,year,volumn,journal,ee,url) VALUES(?,?,?,?,?,?,?,?,?)'
-                    var insertParams = [authors, title, author, pages, year, volumn, journal, ee, url]
-                    connection.query(insertSql, insertParams, function (err, result) {
-                        if (err) {
-                            console.log('[INSERT PUBILC PAPER ERROR] -', err.message)
-                        } else {
-                            resolve(true)
+                    for (let i = 0; i < result.length; i++) {
+                        if (author == result[i].author) {
+                            //说明数据库中已有该用户该论文
+                            count++
                         }
-                    })
+                    }
+                    if (count  == 0) {
+                        var insertSql = 'INSERT INTO pubilcDblp(authors,title,author,pages,year, journal,ee,url) VALUES(?,?,?,?,?,?,?,?)'
+                        var insertParams = [authors, title, author, pages, year,  journal, ee, url]
+                        console.log(insertParams)
+                        connection.query(insertSql, insertParams, function (err, result) {
+                            if (err) {
+                                console.log('[INSERT PUBILC PAPER ERROR2] -', err.message)
+                            } else {
+                                resolve(true)
+                            }
+                        })
+                    }else{
+                        resolve(false)
+                    }
                 }
             }
         })
     })
 }
 
+
+
 //根据author查询该用户在数据库的可能相关论文 返回由包含所有同名作者的论文的数组
 function selectDblp(author) {
     return new Promise((resolve) => {
-        var selectSql = 'SELECT * FROM PUBILC_DBLP WHERE author=?'
+        var selectSql = 'SELECT * FROM pubilcDblp WHERE author=?'
         connection.query(selectSql, [author], function (err, result) {
             if (err) {
                 console.log('[SELECT PERSONAL PAPER ERROR] -', err.message);
@@ -159,7 +174,7 @@ function selectDblp(author) {
                 if (result[0] == undefined) {
                     resolve(false) //没有这个姓名的用户
                 } else {
-                    resolve(result)
+                    resolve([true,result])
                 }
             }
         })
@@ -168,42 +183,44 @@ function selectDblp(author) {
 
 //筛选个人论文入库同时进行分类
 function recordSel(userid, journalid, paperid) {
-    return new Promise((resolve)=>{
-        var selectSql = 'SELECT id FROM PERSONAL_RECORD  WHERE userid=? AND paperid=?'
-        var selectParams=[userid,paperid]
-        connection.query(selectSql,selectParams,function(err,result){
-            if(err){
-                console.log('[SELECT PERSONAL RECORD ERROR] -',err.message)
-                resolve('db error')
-            }else{
-                if(result[0]==undefined){
-                    var insertSql = 'INSERT INTO PERSONAL_RECOR(userid,journalid,paperid) VALUES(?,?,?)'
-                    var insertParams=[userid,journalid,paperid]
-                    connection.query(insertSql,insertParams,function(err,result){
-                        if(err){
-                            console.log['[INSERT PERSONAL RECORD ERROE] - ',err.message]
-                            resolve('db error')
-                        }else{
+    return new Promise((resolve) => {
+        var selectSql = 'SELECT id FROM personalRecord  WHERE userid=? AND paperid=?'
+        var selectParams = [userid, paperid]
+        connection.query(selectSql, selectParams, function (err, result) {
+            if (err) {
+                console.log('[SELECT PERSONAL RECORD ERROR] -', err.message)
+                resolve(false)
+            } else {
+                if (result[0] == undefined) {
+                    var insertSql = 'INSERT INTO personalRecord(userid,journalid,paperid) VALUES(?,?,?)'
+                    var insertParams = [userid, journalid, paperid]
+                    connection.query(insertSql, insertParams, function (err, result) {
+                        if (err) {
+                            console.log['[INSERT PERSONAL RECORD ERROE] - ', err.message]
+                            resolve(false)
+                        } else {
                             resolve(true)
                         }
                     })
+                }else{
+                    resolve(false)
                 }
             }
         })
     })
 }
 //查询某个期刊会议的id
-function searchJournalid(journal){
-    return new Promise((resolve)=>{
-        var selectSql='SELECT id FROM JOURNALS WHERE add_name=? OR name=?'
-        var selectParams=[journal,journal]
-        connection.query(selectSql,selectParams,function(err,result){
-            if(err){
-                console.log('[SELECT JOURNAL ID ERROR] -',err.message)
-            }else{
-                if(result[0]==undefined){
-                    resolve(false) //没有记录相关期刊论文
-                }else{
+function searchJournalid(journal) {
+    return new Promise((resolve) => {
+        var selectSql = 'SELECT id FROM journals WHERE abb_name=? OR name=?'
+        var selectParams = [journal, journal]
+        connection.query(selectSql, selectParams, function (err, result) {
+            if (err) {
+                console.log('[SELECT JOURNAL ID ERROR] -', err.message)
+            } else {
+                if (result[0] == undefined) {
+                    resolve(null) //没有记录相关期刊论文
+                } else {
                     resolve(result[0]) //返回journalid
                 }
             }
@@ -214,45 +231,45 @@ function searchJournalid(journal){
 
 //根据userid查询个人论文
 function selectPaper(userid) {
-        return new Promise((resolve)=>{
-            var selectSql='SELECT journalid,paperid FROM PERSONAL_RECORD WHERE userid=?'
-            connection.query(selectSql,[userid],function(err,result){
-                if(err){
-                    console.log('[SELECT PAPER ERROR] - ',err.message)
-                    resolve('db error')
-                }else{
-                    if(result[0]==undefined){
-                        resolve(false)
-                    }else{
-                    resolve(result)  
-                    }  
+    return new Promise((resolve) => {
+        var selectSql = 'SELECT journalid,paperid FROM personalRecord WHERE userid=?'
+        connection.query(selectSql, [userid], function (err, result) {
+            if (err) {
+                console.log('[SELECT PAPER ERROR] - ', err.message)
+                resolve('db error')
+            } else {
+                if (result[0] == undefined) {
+                    resolve(false)
+                } else {
+                    resolve(result)
                 }
-            })
+            }
         })
+    })
 }
 
-function selectJournal(journalid){
-    return new Promise((resolve)=>{
-        var selectSql='SELECT * FROM JOURNALS WHERE id=?'
-        connection.query(selectSql,[journalid],function(err,result){
-            if(err){
-                console.log('[SELECT JOURNALS ERROR] - ',err.message)
+function selectJournal(journalid) {
+    return new Promise((resolve) => {
+        var selectSql = 'SELECT * FROM journals WHERE id=?'
+        connection.query(selectSql, [journalid], function (err, result) {
+            if (err) {
+                console.log('[SELECT JOURNALS ERROR] - ', err.message)
                 resolve('db error')
-            }else{
+            } else {
                 resolve(result[0])
             }
         })
     })
 }
 
-function selectPDblp(paperid){
-    return new Promise((resolve)=>{
-        var selectSql='SELECT * FROM PUBILC_DBLP WHERE id=?'
-        connection.query(selectSql,[paperid],function(err,result){
-            if(err){
-                console.log('[SELECT PUBILC DBLP ERROR] - ',err.message)
+function selectPDblp(paperid) {
+    return new Promise((resolve) => {
+        var selectSql = 'SELECT * FROM pubilcDblp WHERE id=?'
+        connection.query(selectSql, [paperid], function (err, result) {
+            if (err) {
+                console.log('[SELECT PUBILC DBLP ERROR] - ', err.message)
                 resolve('db error')
-            }else{
+            } else {
                 resolve(result[0])
             }
         })
@@ -260,19 +277,20 @@ function selectPDblp(paperid){
 }
 
 //删除错误的个人论文记录
-function delRecord(userid,paperid){
-    return new Promise((resolve)=>{
-        var delSql = 'DELETE FROM PERSONAL_RECORD WHERE userid=? AND paperid=?'
-        var delParams=[userid,paperid]
-        connection.query(delSql,delParams,function(err,result){
-            if(err){
-                console.log('[DEL PERSONAL RECORD ERROR] - ',err.message)
-                resolve('db error')
-            }else{
+function delRecord(userid, paperid) {
+    return new Promise((resolve) => {
+        console.log(userid,paperid)
+        var delSql = 'DELETE FROM personalRecord WHERE userid=? AND paperid=?'
+        var delParams = [parseInt(userid), parseInt(paperid)]
+        connection.query(delSql, delParams, function (err, result) {
+            if (err) {
+                console.log('[DEL PERSONAL RECORD ERROR] - ', err.message)
+                resolve(false)
+            } else {
                 resolve(true)
             }
         })
     })
 }
 
-module.exports = { userRegister, userLogin }
+module.exports = { userRegister, userLogin, delRecord, selectDblp, selectPaper, selectJournal, selectPDblp, searchJournalid, recordSel, storePaper, resetPawd, setPerdata, setEduexp }
