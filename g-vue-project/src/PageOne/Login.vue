@@ -1,41 +1,50 @@
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-header></el-header>
-      <el-main>
-        <div>
-            用户名<el-input v-model="username" placeholder="Please input username" clearable  style="display:inline"/>
-      </div>
-        <div>
-            密码<el-input v-model="password" placeholder="Please input password" clearable style="display: inline;"/>
-      </div>
-      <div><p>没有账户？点击<RouterLink to='/register'>注册</RouterLink></p></div>
-      <div><el-button type="primary" @click="signin">登陆</el-button></div>
-    </el-main>
-      <el-footer></el-footer>
-    </el-container>
-  </div>
+    <div class="common-layout">
+        <el-form :model="login" status-icon :rules="rules" ref="login" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="用户名" prop="username">
+                <el-input type="username" v-model="login.username" autocomplete="off"
+                    placeholder="Please input your username"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input type="password" v-model="login.password" autocomplete="off"
+                    placeholder="Please input your password"></el-input>
+            </el-form-item>
+            <div>
+                <p>没有账号？点击<router-link to="/register">注册</router-link></p>
+            </div>
+            <el-form-item>
+                <el-button type="primary" @click="loginIn">登陆</el-button>
+                <el-button @click="resetForm('login')">重新输入</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
 </template>
 
 <script>
-
-import { reactive,toRefs } from 'vue';
-export default{
-    setup(){
-        const user=reactive({
-            username:'',
-            password:''
-        })
-        const signin=()=>{
-            console.log('1')
-        }
-        return {...toRefs(user),signin}
+export default {
+    data() {
+        return {
+            login: {
+                username: '',
+                password: '',
+            },
+            rules: {
+                username: [
+                    { required: true, message: "请输入用户名", trigger: 'blur' },
+                ],
+                password: [
+                    { required: true, message: "请输入密码", trigger: 'blur' },
+                ],
+            }
+        };
+    },
+    methods: {
+        resetForm(formName) {
+            this.$refs[formName].resetFields();
+        },
     }
-}
 
+}
 </script>
 
-<style>
-span{display: inline}
-input{display: inline}
-</style>
+<style></style>
