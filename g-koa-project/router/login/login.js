@@ -24,7 +24,7 @@ router.post('/register', async ctx => {
 
 //用户登录路由
 router.post('/login', async ctx => {
-    // console.log(ctx.request.body)
+    console.log(ctx.request.body)
     let { username, password } = ctx.request.body
     try {
         let loginResult = await dboperations.userLogin(username, password)

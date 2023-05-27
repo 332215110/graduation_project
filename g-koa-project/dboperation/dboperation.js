@@ -182,8 +182,9 @@ function selectDblp(author) {
 }
 
 //筛选个人论文入库同时进行分类
-function recordSel(userid, journalid, paperid) {
+function recordSel(userid, journalid=null, paperid) {
     return new Promise((resolve) => {
+        console.log(userid)
         var selectSql = 'SELECT id FROM personalRecord  WHERE userid=? AND paperid=?'
         var selectParams = [userid, paperid]
         connection.query(selectSql, selectParams, function (err, result) {
@@ -219,7 +220,7 @@ function searchJournalid(journal) {
                 console.log('[SELECT JOURNAL ID ERROR] -', err.message)
             } else {
                 if (result[0] == undefined) {
-                    resolve(null) //没有记录相关期刊论文
+                    resolve({id:null}) //没有记录相关期刊论文
                 } else {
                     resolve(result[0]) //返回journalid
                 }

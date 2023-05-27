@@ -40,10 +40,10 @@ router.post('/resetPswd',async ctx=>{
 //用户提交个人教育信息
 router.post('/eduExp',async ctx=>{
     console.log(ctx.request.body)
-    let {selfIntro,researchFields,academicDuties,award,eduExp,id} =ctx.request.body
-    console.log(selfIntro,researchFields,academicDuties,award,eduExp)
+    let {self_introduction,research_fields,academic_duties,award,education_experience,id} =ctx.request.body
+    // console.log(selfIntro,researchFields,academicDuties,award,eduExp)
     try{
-        let dbresult= await dboperations.setEduexp(selfIntro,researchFields,academicDuties,award,eduExp,id)
+        let dbresult= await dboperations.setEduexp(self_introduction,research_fields,academic_duties,award,education_experience,id)
         if (dbresult==true){
             new result(ctx,'修改教育信息成功',200).answer()
         }else{
