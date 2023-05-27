@@ -13,8 +13,8 @@
                 <el-input type="password" v-model="register.checkpassword" autocomplete="off"
                     placeholder="Please confirm your password"></el-input>
             </el-form-item>
-            <el-form-item label="论文常用名" prop="dblp_name">
-                <el-input v-model="register.dblp_name" autocomplete="off" placeholder="Please input your name"></el-input>
+            <el-form-item label="论文常用名" prop="name">
+                <el-input v-model="register.name" autocomplete="off" placeholder="Please input your name"></el-input>
             </el-form-item>
             <el-form-item label="dblp用户绑定">
                 <el-select v-model="register.dblp_url" placeholder="请选择">
@@ -32,13 +32,13 @@
                         <!-- </el-tooltip> -->
                     </el-option>
                 </el-select>
-                <el-button type="primary" @click="getUrl(register.dblp_name)">检索dblp用户名</el-button>
+                <el-button type="primary" @click="getUrl(register.name)">检索dblp用户名</el-button>
             </el-form-item>
             <div>
                 <p>没有账号？点击<router-link to="/login">登陆</router-link></p>
             </div>
             <el-form-item>
-                <el-button type="primary" @click="submitForm('register')">注册</el-button>
+                <el-button type="primary" @click="submitForm('register',register)">注册</el-button>
                 <el-button @click="resetForm('register')">重新输入</el-button>
             </el-form-item>
         </el-form>
@@ -47,7 +47,7 @@
 
 <script>
 import axios from 'axios';
-
+import { register } from '../api/index';
 
 export default {
     data() {
@@ -77,7 +77,7 @@ export default {
                 username: '',
                 password: '',
                 checkpassword: '',
-                dblp_name: '',
+                name: '',
                 dblp_url: ''
             },
             options: [],
@@ -94,7 +94,7 @@ export default {
                     { required: true, message: "请再次填写密码" },
                     { validator: validatePass2, trigger: 'blur' }
                 ],
-                dblp_name: [
+                name: [
                     { required: true, message: "请填写论文中使用的名字（英文）" },
                     { min: 1, max: 1000, message: "必填", trigger: 'blur' },
                 ],
@@ -148,10 +148,16 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields();
         },
-        submitForm(formName) {
+        submitForm(formName,registerInfo) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    alert('submit!');
+                    console.log(registerInfo)
+                    register(registerInfo).then(function(response){
+                        console.log(response);
+                        alert(response.data.msg)
+                    }).catch(function(error){
+                        console.log(error)
+                    })
                 } else {
                     console.log('error submit!!');
                     return false;

@@ -28,6 +28,7 @@ const router = new VueRouter({
             path: '/mainif',
             name: 'mainif',
             component: () => import('../PageTwo/MainInterface.vue'),
+            redirect:'/basedata',
             children: [
                 {
                     path: '/basedata',

@@ -13,7 +13,7 @@
                 <p>没有账号？点击<router-link to="/register">注册</router-link></p>
             </div>
             <el-form-item>
-                <el-button type="primary" @click="loginIn">登陆</el-button>
+                <el-button type="primary" @click="loginIn(login)">登陆</el-button>
                 <el-button @click="resetForm('login')">重新输入</el-button>
             </el-form-item>
         </el-form>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import {login} from '../api/index'
+import router from '@/router';
 export default {
     data() {
         return {
@@ -42,6 +44,21 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields();
         },
+        loginIn(loginInfo){
+            login(loginInfo).then(function(response){
+                if(response.data.code==200){
+                    console.log(response.data.data)
+                    localStorage.setItem("user-info",JSON.stringify(response.data.data))
+                    router.push('basedata')
+                }else if(response.data.code==202){
+                    alert(response.data.msg)
+                }else{
+                    alert(response.data.msg)
+                }
+            }).catch(function(error){
+                console.log(error)
+            })
+        }
     }
 
 }

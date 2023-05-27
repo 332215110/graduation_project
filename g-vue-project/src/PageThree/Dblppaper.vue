@@ -1,5 +1,141 @@
 <template>
     <div>
-        dblppaper
+        <el-button round @click="submitRecord(personRecord)">入库</el-button>
+        <el-table ref="multipleTable" :data="tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe
+            style="width: 100%" @selection-change="handleSelectionChange">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="查询作者">
+                            <span>{{ props.row.author }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文所有作者">
+                            <span>{{ props.row.authors }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文ee">
+                            <span>{{ props.row.ee }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文ID">
+                            <span>{{ props.row.id }}</span>
+                        </el-form-item>
+                        <el-form-item label="期刊名称">
+                            <span>{{ props.row.journal }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文页数">
+                            <span>{{ props.row.pages }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文标题">
+                            <span>{{ props.row.title }}</span>
+                        </el-form-item>
+                        <el-form-item label="论文dblpUrl">
+                            <span>{{ props.row.url }}</span>
+                        </el-form-item>
+                        <el-form-item label="期刊收录年份">
+                            <span>{{ props.row.year }}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+            <el-table-column label="论文ID" prop="id">
+            </el-table-column>
+            <el-table-column label="查询作者" prop="author">
+            </el-table-column>
+            <el-table-column label="论文标题" prop="title">
+            </el-table-column>
+            <el-table-column label="期刊收录年份" prop="year">
+            </el-table-column>
+            <el-table-column type="selection" width="55">
+            </el-table-column>
+        </el-table>
+        <div class="block" style="margin-top:15px;">
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+                :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+                :total="tableData.length" hide-on-single-page="true">
+            </el-pagination>
+        </div>
     </div>
 </template>
+  
+<style>
+.demo-table-expand {
+    font-size: 0;
+}
+
+.demo-table-expand label {
+    width: 100px;
+    color: #99a9bf;
+}
+
+.demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;
+}
+</style>
+  
+<script>
+import { dblpPaper, paperClassify } from '@/api'
+export default {
+    data() {
+        return {
+            tableData: [],
+            currentPage: 1, // 当前页码
+            total: 20, // 总条数
+            pageSize: 5,// 每页的数据条数u
+            multipleSelection: [],
+            personRecord: []
+        }
+    },
+    created: async function () {
+        let paperArr = []
+        await dblpPaper(JSON.parse(localStorage.getItem("user-info"))).then(function (response) {
+            if (response.data.code == 200) {
+                paperArr = response.data.data
+            } else if (response.data.code == 202) {
+                alert(response.data.msg)
+            } else {
+                alert(response.data.msg)
+            }
+        })
+        this.tableData = paperArr
+    },
+    methods: {
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`);
+            this.currentPage = 1;
+            this.pageSize = val;
+        },
+        //当前页改变时触发 跳转其他页
+        handleCurrentChange(val) {
+            console.log(`当前页: ${val}`);
+            this.currentPage = val;
+        },
+        handleSelectionChange(val) {
+            this.personRecord=[]
+            this.multipleSelection = val;
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+                let signleRecord = {
+                    userid: JSON.parse(localStorage.getItem("user-info")).id,
+                    paperid: this.multipleSelection[i].id,
+                    journal: this.multipleSelection[i].journal
+                }
+                this.personRecord.push(signleRecord)
+            }
+        },
+        submitRecord(recordArr) {
+            console.log(recordArr)
+            paperClassify(recordArr).then(function (response) {
+                console.log(response);
+                if (response.data.code == 200) {
+                    console.log(response.data.msg)
+                } else if (response.data.code == 202) {
+                    alert(response.data.msg)
+                } else {
+                    alert(response.data.msg)
+                }
+            })
+            recordArr=[]
+        }
+    }
+}
+</script>
