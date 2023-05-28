@@ -22,7 +22,7 @@ router.post('/dblppaper', async ctx => {
 router.post('/paperClassify', async ctx => {
     console.log(ctx.request.body)
     for (let i = 0; i < ctx.request.body.length; i++) {
-        let { userid, paperid, journal } =  await ctx.request.body[i]
+        let { userid, paperid, journal } = await ctx.request.body[i]
         try {
             let { id } = await dboperations.searchJournalid(journal)
             console.log(id)
@@ -45,10 +45,10 @@ router.post('/showRecord', async ctx => {
         paperData: ''
     }
     console.log(ctx.request.body)
-    let { userid } = ctx.request.body
-    console.log(userid)
+    let { id } = ctx.request.body
+    console.log(id)
     try {
-        let selectResult = await dboperations.selectPaper(parseInt(userid))
+        let selectResult = await dboperations.selectPaper(parseInt(id))
         if (selectResult == false) {
             new result(ctx, '不存在相关论文记录', 202).answer()
         } else {
@@ -61,6 +61,7 @@ router.post('/showRecord', async ctx => {
                     paperData: ''
                 }
             }
+            console.log(recordArr)
             new result(ctx, '搜索成功', 200, recordArr).answer()
         }
     } catch {
@@ -69,19 +70,25 @@ router.post('/showRecord', async ctx => {
 })
 
 router.post('/delRecord', async ctx => {
+    let sucessCount = 0
     console.log(ctx.request.body)
-    let { userid, paperid } = ctx.request.body
-    console.log(userid, paperid)
-    try {
-        let dbresult = await dboperations.delRecord(userid, paperid)
-        console.log(dbresult)
-        if (dbresult == true) {
-            new result(ctx, '删除成功', 200).answer()
-        } else {
-            new result(ctx, '删除失败', 202).answer()
+    for (let i = 0; i < ctx.request.body.length; i++) {
+        let { userid, paperid } = await ctx.request.body[i]
+        console.log(userid, paperid)
+        try {
+            let dbresult = await dboperations.delRecord(userid, paperid)
+            console.log(dbresult)
+            if (dbresult == true) {
+                sucessCount++
+            } else {
+                new result(ctx, '删除失败', 202).answer()
+            }
+        } catch (e) {
+            new result(ctx, '服务器错误', 500).answer()
         }
-    } catch (e) {
-        new result(ctx, '服务器错误', 500).answer()
+    }
+    if(sucessCount==ctx.request.body.length){
+        new result(ctx, '删除成功', 200).answer()
     }
 })
 module.exports = router.routes()

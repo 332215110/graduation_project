@@ -56,3 +56,19 @@ export function paperClassify(id){
         data:id
     })
 }
+
+export function showRecord(userid){
+    return request({
+        method:'POST',
+        url:'/showRecord',
+        data:userid
+    })
+}
+
+export function delRecord(recordArr){
+    return request({
+        method:'POST',
+        url:'/delRecord',
+        data:recordArr
+    })
+}
