@@ -38,7 +38,7 @@
                 <p>没有账号？点击<router-link to="/login">登陆</router-link></p>
             </div>
             <el-form-item>
-                <el-button type="primary" @click="submitForm('register',register)">注册</el-button>
+                <el-button type="primary" @click="submitForm('register', register)">注册</el-button>
                 <el-button @click="resetForm('register')">重新输入</el-button>
             </el-form-item>
         </el-form>
@@ -48,6 +48,7 @@
 <script>
 import axios from 'axios';
 import { register } from '../api/index';
+import { MessageBox } from 'element-ui';
 
 export default {
     data() {
@@ -115,30 +116,34 @@ export default {
                 console.log(dbname)
                 console.log('/a', response.data.result.hits.hit)
                 var authorArr = response.data.result.hits.hit
-                for (let i = 0; i < authorArr.length; i++) {
-                    var personObj = {
-                        "author": "",
-                        "url": "",
-                        "note": []
-                    }
-                    if ('notes' in authorArr[i].info) {
-                        if (Object.prototype.toString.call(authorArr[i].info.notes.note) === '[object Object]') {
-                            personObj.author = authorArr[i].info.author
-                            personObj.url = authorArr[i].info.url
-                            personObj.note.push(authorArr[i].info.notes.note)
-                        } else {
-                            for (let j = 0; j < authorArr[i].info.notes.note.length; j++) {
+                if (authorArr != undefined) {
+                    for (let i = 0; i < authorArr.length; i++) {
+                        var personObj = {
+                            "author": "",
+                            "url": "",
+                            "note": []
+                        }
+                        if ('notes' in authorArr[i].info) {
+                            if (Object.prototype.toString.call(authorArr[i].info.notes.note) === '[object Object]') {
                                 personObj.author = authorArr[i].info.author
                                 personObj.url = authorArr[i].info.url
-                                personObj.note.push(authorArr[i].info.notes.note[j])
+                                personObj.note.push(authorArr[i].info.notes.note)
+                            } else {
+                                for (let j = 0; j < authorArr[i].info.notes.note.length; j++) {
+                                    personObj.author = authorArr[i].info.author
+                                    personObj.url = authorArr[i].info.url
+                                    personObj.note.push(authorArr[i].info.notes.note[j])
+                                }
                             }
+                        } else {
+                            personObj.author = authorArr[i].info.author
+                            personObj.url = authorArr[i].info.url
+                            personObj.note.push({ "text": "无单位绑定" })
                         }
-                    } else {
-                        personObj.author = authorArr[i].info.author
-                        personObj.url = authorArr[i].info.url
-                        personObj.note.push({ "text": "无单位绑定" })
+                        this.options.push(personObj)
                     }
-                    this.options.push(personObj)
+                } else {
+                    alert('无相关姓名作者')
                 }
             }, error => {
                 console.log(error)
@@ -148,14 +153,14 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields();
         },
-        submitForm(formName,registerInfo) {
+        submitForm(formName, registerInfo) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     console.log(registerInfo)
-                    register(registerInfo).then(function(response){
+                    register(registerInfo).then(function (response) {
                         console.log(response);
                         alert(response.data.msg)
-                    }).catch(function(error){
+                    }).catch(function (error) {
                         console.log(error)
                     })
                 } else {

@@ -15,12 +15,6 @@
                 <el-menu-item index="/perpaper">个人论文</el-menu-item>
             </el-menu-item-group>
         </el-submenu>
-        <el-submenu index="3">
-            <template slot="title"><i class="el-icon-setting"></i>简历生成</template>
-            <el-menu-item-group>
-                <el-menu-item index="/biography">个人简历生成</el-menu-item>
-            </el-menu-item-group>
-        </el-submenu>
     </el-menu>
 </template>
 <script>

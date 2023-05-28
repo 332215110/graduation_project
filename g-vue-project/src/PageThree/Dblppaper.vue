@@ -78,6 +78,7 @@
   
 <script>
 import { dblpPaper, paperClassify } from '@/api'
+import router from '@/router'
 export default {
     data() {
         return {
@@ -96,7 +97,9 @@ export default {
                 paperArr = response.data.data
             } else if (response.data.code == 202) {
                 alert(response.data.msg)
-            } else {
+            } else if (response.data.code==502) {
+                router.push('/')
+            }else{
                 alert(response.data.msg)
             }
         })

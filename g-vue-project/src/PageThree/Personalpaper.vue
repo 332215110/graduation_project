@@ -2,7 +2,7 @@
     <div>
         <el-button round @click="clearFilter">重置数据</el-button>
         <el-button round @click="deleteRecord(personRecord)">删除记录</el-button>
-        <el-button round>报表导出</el-button>
+        <el-button type="primary" @click="exportExcel">导出选中</el-button>
         <el-table ref="multipleTable" :data="tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe
             style="width: 100%" @selection-change="handleSelectionChange">
             <el-table-column type="expand">
@@ -109,6 +109,9 @@
   
 <script>
 import { delRecord, showRecord } from '@/api'
+import router from '@/router'
+// 引入导出Excel表格依赖
+import { export_json_to_excel } from '@/vendor/Export2Excel'
 export default {
     data() {
         return {
@@ -183,6 +186,8 @@ export default {
                 }
             } else if (response.data.code == 202) {
                 alert(response.data.msg)
+            } else if (response.data.code = 502) {
+                router.push('/')
             } else {
                 alert(response.data.msg)
             }
@@ -232,6 +237,8 @@ export default {
                     localStorage.setItem("person-record", JSON.stringify(tableParse))
                 } else if (response.data.code == 202) {
                     alert(response.data.msg)
+                } else if (response.data.code == 502) {
+                    router.push('/')
                 } else {
                     alert(response.data.msg)
                 }
@@ -255,6 +262,35 @@ export default {
             }
             return row[property] === value;
         },
-    }
+        exportExcel() {
+            if (this.multipleSelection.length === 0) {
+                this.$message({
+                    message: '请至少选择一条需要导出的数据',
+                    type: 'warning'
+                });
+                return;
+            }
+            this.$msgbox.confirm('该操作将导出选中的数据，是否继续', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                //导出
+                require.ensure([], () => {
+                    //注意这个Export2Excel路径
+                    const tableHeader = ['作者', '所有作者', '论文ee', '期刊缩写', '论文页数', '论文标题', '论文url', '期刊收录年份', '期刊名', 'CCF分级', 'CUG分级', 'SCI分区', 'ISSN'];   // 设置Excel表格的表头
+                    const filterVal = ['author', 'authors', 'ee', 'journal', 'pages', 'title', 'url', 'year', 'name', 'ccf', 'cug', 'sci', 'ISSN'];  // 跟表格表头对应的绑定的prop
+                    // let list = this.filterTableData(JSON.parse(JSON.stringify(this.multipleSelection)));   // this.selectList为选中的要导出的数据，用filterTableData方法先处理一下数据格式(要进行深度拷贝，以免过滤的时候，影响页面上展示的数据)，再存到list
+                    let data = this.formatJson(filterVal, this.multipleSelection);
+                    console.log(data)
+                    export_json_to_excel(tableHeader, data, '论文报表');    //最后一个是导出表格的名字
+                })
+            }).catch(() => { });
+        },
+        formatJson(filterVal, Data) {
+            return Data.map(v => filterVal.map(j => v[j]))
+        },
+    },
 }
+
 </script>
