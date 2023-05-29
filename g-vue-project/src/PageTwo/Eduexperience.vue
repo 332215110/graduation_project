@@ -1,20 +1,24 @@
 <template>
     <div class="common-layout">
-        <el-form :model="eduForm" status-icon :rules="rules" ref="eduForm" label-width="100px" class="demo-eduForm">
+        <el-form :model="eduForm" status-icon :rules="rules" ref="eduForm" label-position="top" class="demo-eduForm">
             <el-form-item label="个人简介">
-                <el-input v-model="eduForm.self_introduction" autocomplete="off"></el-input>
+                <el-input v-model="eduForm.self_introduction" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }"
+                    maxlength="1000" show-word-limit></el-input>
             </el-form-item>
             <el-form-item label="研究领域">
-                <el-input v-model="eduForm.research_fields"></el-input>
+                <el-input v-model="eduForm.research_fields" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 10 }"></el-input>
             </el-form-item>
             <el-form-item label="学术兼职">
-                <el-input v-model="eduForm.academic_duties"></el-input>
+                <el-input v-model="eduForm.academic_duties" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 10 }"></el-input>
             </el-form-item>
             <el-form-item label="获奖信息">
-                <el-input v-model="eduForm.award"></el-input>
+                <el-input v-model="eduForm.award" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }"></el-input>
             </el-form-item>
             <el-form-item label="教育信息">
-                <el-input v-model="eduForm.education_experience"></el-input>
+                <el-input v-model="eduForm.education_experience" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 10 }"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="submitFrom(eduForm)">提交</el-button>
@@ -52,15 +56,15 @@ export default {
                 if (response.data.code == 200) {
                     alert(response.data.msg)
                     localStorage.setItem("user-info", JSON.stringify(formName))
-                } else if (response.data.code==202) {
+                } else if (response.data.code == 202) {
                     alert(response.data.msg)
                 } else {
                     alert(response.data.msg)
                 }
             })
         },
-        cancelMod(){
-            this.eduForm=JSON.parse(localStorage.getItem("user-info"))
+        cancelMod() {
+            this.eduForm = JSON.parse(localStorage.getItem("user-info"))
         }
     }
 }

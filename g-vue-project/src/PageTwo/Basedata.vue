@@ -1,11 +1,11 @@
 <template>
-    <div class="common-layout">
-        <el-form :model="baseData" status-icon :rules="rules" ref="baseData" label-width="100px" class="demo-baseData">
+    <div id="basedata-cont">
+        <el-form :model="baseData" status-icon :rules="rules" ref="baseData" label-position="top" class="demo-baseData">
             <el-form-item label="论文常用名">
                 <el-input v-model="baseData.name" disabled="true"></el-input>
             </el-form-item>
             <el-form-item label="电话">
-                <el-input v-model="baseData.phone"></el-input>
+                <el-input v-model="baseData.phone" type="text" maxlength="11" show-word-limit></el-input>
             </el-form-item>
             <el-form-item label="邮箱">
                 <el-input v-model="baseData.email"></el-input>
@@ -86,4 +86,9 @@ export default {
 
 </script>
 
-<style></style>
+<style>
+#basedata-cont{
+    background-color: white;
+    margin: 0;
+}
+</style>

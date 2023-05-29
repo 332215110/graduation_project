@@ -1,5 +1,5 @@
 <template>
-    <el-menu :default-active="$route.path"  router>
+    <el-menu :default-active="$route.path"  router id="menu-cont">
         <el-submenu index="1">
             <template slot="title"><i class="el-icon-message"></i>个人信息</template>
             <el-menu-item-group>
@@ -15,6 +15,12 @@
                 <el-menu-item index="/perpaper">个人论文</el-menu-item>
             </el-menu-item-group>
         </el-submenu>
+        <!-- <el-submenu index="3">
+            <template slot="title"><i class="el-icon-menu"></i>个人简历</template>
+            <el-menu-item-group>
+                <el-menu-item index="/biography">个人简历导出</el-menu-item>
+            </el-menu-item-group>
+        </el-submenu> -->
     </el-menu>
 </template>
 <script>

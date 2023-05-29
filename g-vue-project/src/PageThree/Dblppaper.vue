@@ -1,9 +1,9 @@
 <template>
     <div>
-        <el-button round @click="clearFilter">重置数据</el-button>
-        <el-button round @click="submitRecord(personRecord)">入库</el-button>
+        <el-button round  type="primary" @click="submitRecord(personRecord)" style="float:right">入库</el-button>
+        <el-button round type="info" @click="clearFilter" style="float:right; margin-right:7px;">重置数据</el-button>
         <el-table ref="multipleTable" :data="tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe
-            style="width: 100%" @selection-change="handleSelectionChange">
+            style="width: 100%" @selection-change="handleSelectionChange" height="80vh">
             <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
@@ -52,7 +52,7 @@
         </el-table>
         <div class="block" style="margin-top:15px;">
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
-                :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+                :page-sizes="[1, 5, 10, 15, 20]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
                 :total="tableData.length" hide-on-single-page="true">
             </el-pagination>
         </div>
@@ -85,7 +85,7 @@ export default {
             tableData: [],
             currentPage: 1, // 当前页码
             total: 20, // 总条数
-            pageSize: 5,// 每页的数据条数u
+            pageSize: 15,// 每页的数据条数u
             multipleSelection: [],
             personRecord: []
         }
@@ -97,9 +97,9 @@ export default {
                 paperArr = response.data.data
             } else if (response.data.code == 202) {
                 alert(response.data.msg)
-            } else if (response.data.code==502) {
+            } else if (response.data.code == 502) {
                 router.push('/')
-            }else{
+            } else {
                 alert(response.data.msg)
             }
         })

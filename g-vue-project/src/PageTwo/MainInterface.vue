@@ -1,12 +1,15 @@
 <template>
-    <div class="common-layout">
-        <el-container>
-            <el-header> <el-button round @click="logout">圆角按钮</el-button></el-header>
+    <div class="main-interface">
+        <el-container class="main-interface">
+            <el-header id="container-header">
+                <span>学术助理系统</span>
+                <el-button id="logout-button" style="float:right;" round @click="logout">注销</el-button>
+            </el-header>
             <el-container direction="horizontal">
-                <el-aside width="200px">
+                <el-aside id="aside-cont" width="200px">
                     <Menu />
                 </el-aside>
-                <el-main><router-view></router-view></el-main>
+                <el-main id="main-cont"><router-view></router-view></el-main>
             </el-container>
         </el-container>
     </div>
@@ -22,13 +25,19 @@ export default {
     },
     methods: {
         logout() {
-            this.$msgbox.confirm('该操作将注销该用户,是否继续', '提示',{
+            this.$msgbox.confirm('该操作将注销该用户,是否继续', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
-            }).then(() => {
-                localStorage.clear()
-                this.$router.push('/')
+            }).then((action) => {
+                if (action == 'confirm') {
+                    localStorage.clear()
+                    this.$router.push('/')
+                }
+            }).catch(err => {
+                if (err = 'cancel') {
+                    console.log('cancel')
+                }
             })
         }
     }
@@ -36,7 +45,28 @@ export default {
 </script>
 
 <style>
-
+#container-header{
+    background-color: #B3C0D1;
+    color: #333;
+    font-size: 30px;
+    text-align: center;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+#logout-button{
+    text-align: right;
+}
+#aside-cont{
+    background-color: #B3C0D1;
+}
+.main-interface{
+    min-height: 100vh;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-background-size:cover;
+    -moz-background-size:cover;
+}
 /* .el-header,
 .el-footer {
     background-color: #B3C0D1;

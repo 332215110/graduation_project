@@ -20,18 +20,21 @@ export default {
   
 <style>
 .home {
-    background: url('../assets/background.jpg');
-    height: 100vh;
+    background: url('../assets/clouds-4215608_1280.jpg');
+    min-height: 100vh;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-background-size:cover;
+    -moz-background-size:cover;
 }
-#home-container{
-    height: 100vh;
-}
+
+
 #home-main {
-    height: 80vh;
-    width: 60vh;
-    position: relative;
+    position: absolute;
+    top:50%;
     left: 50%;
-    top: 50%
+    transform: translate(-50%,-50%);
 }
 </style>
   

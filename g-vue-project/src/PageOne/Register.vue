@@ -1,6 +1,9 @@
 <template>
-    <div class="common-layout">
-        <el-form :model="register" status-icon :rules="rules" ref="register" label-width="100px" class="demo-ruleForm">
+    <div id="register-cont">
+        <div id="register-title">
+            注册
+        </div>
+        <el-form :label-position="top" :model="register" status-icon :rules="rules" ref="register">
             <el-form-item label="用户名" prop="username">
                 <el-input v-model="register.username" autocomplete="off"
                     placeholder="Please input your username"></el-input>
@@ -17,29 +20,31 @@
                 <el-input v-model="register.name" autocomplete="off" placeholder="Please input your name"></el-input>
             </el-form-item>
             <el-form-item label="dblp用户绑定">
-                <el-select v-model="register.dblp_url" placeholder="请选择">
-                    <el-option v-for="item in options" :key="item.url" :label="item.author" :value="item.url"
-                        style="height:auto;">
-                        <span style="float:left;position: relative;display: block;">
-                            {{ item.author }}
-                        </span>
-                        <!-- <el-tooltip placement="bottom"> -->
-                        <!-- <div slot="content">{{ item.author }}</div> -->
-                        <div v-for="ite in item.note" :key="ite.text">
-                            <span style="float: left; display: block;color: #8492a6;font-size: 13px;">
-                                {{ ite.text }}</span>
-                        </div>
-                        <!-- </el-tooltip> -->
-                    </el-option>
-                </el-select>
-                <el-button type="primary" @click="getUrl(register.name)">检索dblp用户名</el-button>
+                <span>
+                    <el-select v-model="register.dblp_url" placeholder="请选择">
+                        <el-option v-for="item in options" :key="item.url" :label="item.author" :value="item.url"
+                            style="height:auto;">
+                            <span style="float:left;position: relative;display: block;">
+                                {{ item.author }}
+                            </span>
+                            <!-- <el-tooltip placement="bottom"> -->
+                            <!-- <div slot="content">{{ item.author }}</div> -->
+                            <div v-for="ite in item.note" :key="ite.text">
+                                <span style="float: left; display: block;color: #8492a6;font-size: 13px;">
+                                    {{ ite.text }}</span>
+                            </div>
+                            <!-- </el-tooltip> -->
+                        </el-option>
+                    </el-select>
+                </span>
             </el-form-item>
-            <div>
+            <div id="register-to-login">
                 <p>没有账号？点击<router-link to="/login">登陆</router-link></p>
             </div>
-            <el-form-item>
+            <el-form-item style="text-align: center;">
                 <el-button type="primary" @click="submitForm('register', register)">注册</el-button>
                 <el-button @click="resetForm('register')">重新输入</el-button>
+                <el-button type="info" id='search-name' @click="getUrl(register.name)">检索dblp用户名</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -48,7 +53,6 @@
 <script>
 import axios from 'axios';
 import { register } from '../api/index';
-import { MessageBox } from 'element-ui';
 
 export default {
     data() {
@@ -173,4 +177,21 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+#register-cont {
+    width: 400px;
+}
+
+#register-title {
+    text-align: center;
+    color: #000;
+    font-size: 30px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#register-to-login{
+    width: 400px;
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 auto;
+}
+</style>
