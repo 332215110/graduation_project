@@ -1,6 +1,6 @@
 var mysql = require('mysql')
 var connection = mysql.createConnection({
-    host: 'localhost',
+    host: '172.17.0.2',
     user: 'root',
     password: '123456',
     database: 'gmysql',
@@ -112,7 +112,7 @@ function setEduexp(self_intro, research_field, academic_duties, award, eduExp, i
 }
 
 //在登陆的同时查询并存入dblp记录的论文
-function storePaper(authors=null, title, author, pages=null, year=null, journal=null, ee=null, url=null) {
+function storePaper(authors = null, title, author, pages = null, year = null, journal = null, ee = null, url = null) {
     return new Promise((resolve) => {
         let count = 0
         var selectSql = 'SELECT author FROM pubilcDblp where title=?'
@@ -140,9 +140,9 @@ function storePaper(authors=null, title, author, pages=null, year=null, journal=
                             count++
                         }
                     }
-                    if (count  == 0) {
+                    if (count == 0) {
                         var insertSql = 'INSERT INTO pubilcDblp(authors,title,author,pages,year, journal,ee,url) VALUES(?,?,?,?,?,?,?,?)'
-                        var insertParams = [authors, title, author, pages, year,  journal, ee, url]
+                        var insertParams = [authors, title, author, pages, year, journal, ee, url]
                         console.log(insertParams)
                         connection.query(insertSql, insertParams, function (err, result) {
                             if (err) {
@@ -151,7 +151,7 @@ function storePaper(authors=null, title, author, pages=null, year=null, journal=
                                 resolve(true)
                             }
                         })
-                    }else{
+                    } else {
                         resolve(false)
                     }
                 }
@@ -174,7 +174,7 @@ function selectDblp(author) {
                 if (result[0] == undefined) {
                     resolve(false) //没有这个姓名的用户
                 } else {
-                    resolve([true,result])
+                    resolve([true, result])
                 }
             }
         })
@@ -182,7 +182,7 @@ function selectDblp(author) {
 }
 
 //筛选个人论文入库同时进行分类
-function recordSel(userid, journalid=null, paperid) {
+function recordSel(userid, journalid = null, paperid) {
     return new Promise((resolve) => {
         console.log(userid)
         var selectSql = 'SELECT id FROM personalRecord  WHERE userid=? AND paperid=?'
@@ -203,7 +203,7 @@ function recordSel(userid, journalid=null, paperid) {
                             resolve(true)
                         }
                     })
-                }else{
+                } else {
                     resolve(false)
                 }
             }
@@ -220,7 +220,7 @@ function searchJournalid(journal) {
                 console.log('[SELECT JOURNAL ID ERROR] -', err.message)
             } else {
                 if (result[0] == undefined) {
-                    resolve({id:null}) //没有记录相关期刊论文
+                    resolve({ id: null }) //没有记录相关期刊论文
                 } else {
                     resolve(result[0]) //返回journalid
                 }
@@ -280,7 +280,7 @@ function selectPDblp(paperid) {
 //删除错误的个人论文记录
 function delRecord(userid, paperid) {
     return new Promise((resolve) => {
-        console.log(userid,paperid)
+        console.log(userid, paperid)
         var delSql = 'DELETE FROM personalRecord WHERE userid=? AND paperid=?'
         var delParams = [parseInt(userid), parseInt(paperid)]
         connection.query(delSql, delParams, function (err, result) {

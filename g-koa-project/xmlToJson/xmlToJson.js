@@ -27,7 +27,7 @@ function autoCraw(url) {
                             if (paperInfo.r[i].hasOwnProperty("article")) {
                                 for (let j = 0; j < paperInfo.r[i].article[0].author.length; j++) {
                                     // console.log(paperInfo.r[i].article[0].author[j].cauthor)
-                                    authors = authors + ";" + paperInfo.r[i].article[0].author[j].cauthor
+                                    authors = authors + paperInfo.r[i].article[0].author[j].cauthor+ ";" 
                                 }
                                 title = paperInfo.r[i].article[0].title
                                 pages = paperInfo.r[i].article[0].pages
